@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 // Uloha 1
 typedef struct {
@@ -52,17 +51,27 @@ void usporiadaj_serialy(TSerial* serialy, int pocet, int (*porovnaj)(const void*
 }
 
 // Uloha 3
-TSerial* najdi_serial(TSerial* serialy, int pocet, int rok) {
-    TSerial kluc = {.rok = rok};
-    return (TSerial*)bsearch(&kluc, serialy, pocet, sizeof(TSerial), porovnaj_podla_roka);
-}
-
 void vypis_serialy_z_roka(TSerial* serialy, int pocet, int rok) {
-    TSerial* serial = najdi_serial(serialy, pocet, rok);
+    TSerial kluc = {.rok = rok};
+    TSerial* serial = (TSerial*)bsearch(&kluc, serialy, pocet, sizeof(TSerial), porovnaj_podla_roka);
+
+    if (serial == NULL || serial->rok != rok) {
+        printf("Chyba: Zadany rok %d sa nenachadza v subore.\n", rok);
+        return;
+    }
+    else{
+        printf("Serialy z roku %d:\n",rok);
+    }
+
+    int hladaj = 0;
+
     while (serial != NULL && serial->rok == rok) {
+
         printf("%s\n", serial->nazov);
         serial++;
+        hladaj = 1;
     }
+
 }
 
 // Uloha 4
@@ -89,19 +98,35 @@ int main() {
     printf("Nacitane serialy:\n");
     vypis_serialy(serialy, pocet);
 
-    usporiadaj_serialy(serialy, pocet, porovnaj_podla_roka);
-    printf("\nSerialy usporiadane podla roka:\n");
-    vypis_serialy(serialy, pocet);
+    char option;
+    printf("\nVyber moznost (a - usporiadane podla roka, b - usporiadane podla poctu dielov): ");
+    scanf(" %c", &option);
 
-    usporiadaj_serialy(serialy, pocet, porovnaj_podla_poctu_dielov);
-    printf("\nSerialy usporiadane podla poctu dielov:\n");
-    vypis_serialy(serialy, pocet);
+    switch (option) {
+        case 'a':
+            usporiadaj_serialy(serialy, pocet, porovnaj_podla_roka);
+            printf("\nSerialy usporiadane podla roka:\n");
+            vypis_serialy(serialy, pocet);
+            break;
+        case 'b':
+            usporiadaj_serialy(serialy, pocet, porovnaj_podla_poctu_dielov);
+            printf("\nSerialy usporiadane podla poctu dielov:\n");
+            vypis_serialy(serialy, pocet);
+            break;
+        default:
+            printf("\nNeplatna moznost.\n");
+            break;
+    }
 
-    printf("\nSerialy z roku 2000:\n");
-    vypis_serialy_z_roka(serialy, pocet, 2000);
+    int hladany_rok;
+    printf("\nZadaj rok pre hladanie serialov: ");
+    scanf("%d", &hladany_rok);
+
+    vypis_serialy_z_roka(serialy, pocet, hladany_rok);
 
     zapis_serialy_do_suboru(serialy, pocet, "serialy_pred_2000.txt", 'S');
 
     free(serialy);
     return 0;
 }
+
