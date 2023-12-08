@@ -60,22 +60,27 @@ void vypis_serialy_z_roka(TSerial* serialy, int pocet, int rok) {
         return;
     }
     else{
+
         printf("Serialy z roku %d:\n",rok);
     }
 
-    int hladaj = 0;
+
 
     while (serial != NULL && serial->rok == rok) {
 
         printf("%s\n", serial->nazov);
         serial++;
-        hladaj = 1;
+
     }
 
 }
 
 // Uloha 4
-void zapis_serialy_do_suboru(TSerial* serialy, int pocet, const char* meno_suboru, char pismeno) {
+void zapis_serialy_do_suboru(TSerial* serialy, int pocet, const char* meno_suboru) {
+    char pismeno;
+    printf("Zadaj pismeno: ");
+    scanf(" %c", &pismeno);
+
     FILE* subor = fopen(meno_suboru, "w");
     if (subor == NULL) {
         printf("Nepodarilo sa otvorit subor.\n");
@@ -124,7 +129,7 @@ int main() {
 
     vypis_serialy_z_roka(serialy, pocet, hladany_rok);
 
-    zapis_serialy_do_suboru(serialy, pocet, "serialy_pred_2000.txt", 'S');
+    zapis_serialy_do_suboru(serialy, pocet, "serialy_pred_2000.txt");
 
     free(serialy);
     return 0;
